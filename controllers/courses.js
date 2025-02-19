@@ -2,6 +2,7 @@ const { UnauthenticatedError, BadRequestError } = require('../errors');
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const { StatusCodes } = require('http-status-codes');
+const cloudinary = require('../helper/imageUpload');
 
 
 const getCourses = async (req, res) => {
@@ -13,27 +14,33 @@ const getCourses = async (req, res) => {
 }
 
 const createCourse = async (req, res) => {
-    const { id, role } = req.user;
-    const { instructor, title, duration, description, price } = req.body;
+    const { id: instructorId, role } = req.user;
+    const { title, duration, description, price } = req.body;
 
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            public_id: `${instructorId}_profile`,
+            width: 500,
+            height: 500,
+            crop: 'fill',
+        });
+
+        const course = new Course({ instructor: instructorId, title, duration, description, price, image: result.url });
+
+        await course.save();
+        res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, code: 500, msg: 'server error, try after some time' })
+        console.log("Error while uploading image", error.message);
     }
 
-    const course = new Course({ instructor, title, duration, description, price });
-    await course.save();
 
-    res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })
 }
 
 
 const updateCourse = async (req, res) => {
     const { id: userId, role } = req.user;
     const { id: courseId } = req.params;
-
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
-    }
 
     const updatedCourse = await Course.findByIdAndUpdate({ _id: courseId }, req.body);
 
@@ -45,10 +52,6 @@ const updateCourse = async (req, res) => {
 const deleteCourse = async (req, res) => {
     const { id: userId, role } = req.user;
     const { id: courseId } = req.params;
-
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
-    }
 
     const updatedCourse = await Course.findById(courseId).deleteOne();
 

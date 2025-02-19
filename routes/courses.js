@@ -12,15 +12,26 @@ const updateCourseSchema = require('../validator/updateCourseValidation');
 
 // Auth Middlewares
 const adminAuth = require('../middlewares/adminAuth');
-const studentAuth = require('../middlewares/studentAuth');
 const instructorAuth = require('../middlewares/instructorAuth');
 
+const multer = require('multer');
 
-    
+const storage = multer.diskStorage({});
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true);
+    } else {
+        cb('invalid image file!', false);
+    }
+};
+const uploads = multer({ storage, fileFilter });
+
+
 
 
 router.get('/', getCourses);
-router.post('/', instructorAuth, validate(courseSchema), createCourse);
+router.post('/', instructorAuth, uploads.single('courseImage'), validate(courseSchema), createCourse);
 router.put('/:id', instructorAuth, validate(updateCourseSchema), updateCourse);
 router.delete('/:id', instructorAuth, deleteCourse);
 router.post('/:course_id/enroll', adminAuth, validate(enrollmentSchema), validate(courseSchema), enrollStudent);

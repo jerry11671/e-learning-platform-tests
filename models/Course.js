@@ -26,7 +26,8 @@ const courseSchema = new mongoose.Schema({
             type: mongoose.SchemaTypes.ObjectId,
             ref: 'User'
         }
-    ]
+    ],
+    image: String
 }, { timestamps: true })
 
 // courseSchema.post('save', function () {
