@@ -2,6 +2,8 @@ const { StatusCodes } = require('http-status-codes');
 const User = require('../models/User');
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 
+const sendEmail = require('../utils/sendEmail')
+
 
 const register = async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -19,6 +21,11 @@ const register = async (req, res) => {
     const user = new User({ name, email, password, role });
     await user.save()
     const token = user.createJWT();
+
+    // Email send funcionality
+    if (role == 'instructor' || role == 'student') {
+        sendEmail(user.email, "Confirmation Email", `Welcome to E-Learning platform, your ${role.charAt(0).toUpperCase() + role.slice(1)} account has been created`);
+    }
 
     res.status(StatusCodes.CREATED).json({ status: true, code: 201, msg: 'Registration successful', data: { user, token: token } });
 }

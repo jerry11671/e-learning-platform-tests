@@ -2,12 +2,13 @@ const { UnauthenticatedError, BadRequestError } = require('../errors');
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const { StatusCodes } = require('http-status-codes');
+const sendEmail = require('../utils/sendEmail');
 
 
 
 const enrollCourse = async (req, res) => {
     const { course_id } = req.params;
-    const { role, id: studentId } = req.user;
+    const { role, id: studentId, email } = req.user;
 
     if (role !== 'student') {
         throw new UnauthenticatedError('Not a student.')
@@ -22,6 +23,8 @@ const enrollCourse = async (req, res) => {
     course.students.push(studentId);
     await course.save();
     await enrollment.save()
+
+    sendEmail(email, 'Course Enrollment Successful', 'Congratulations, you have successfully enrolled for the course');
 
     res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course enrolled successfully', data: { course } })
 }
