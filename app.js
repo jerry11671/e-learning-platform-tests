@@ -19,7 +19,8 @@ const studentRouter = require('./routes/students');
 // error handler middleware
 const errorHandlerMiddleware = require('./middlewares/error-handler')
 const notFoundMiddleware = require('./middlewares/not-found');
-const authMiddleware = require('./middlewares/auth')
+
+const studentAuthMiddleware = require('./middlewares/studentAuth');
 
 app.get('/healthcheck', (req, res) => {
     res.status(StatusCodes.OK).json({ status: 'active' });
@@ -29,8 +30,8 @@ app.get('/healthcheck', (req, res) => {
 app.use(express.json());
 app.use(cors());
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/courses', authMiddleware, courseRouter);
-app.use('/api/v1/students', authMiddleware, studentRouter);
+app.use('/api/v1/courses', courseRouter);
+app.use('/api/v1/students', studentAuthMiddleware, studentRouter);
 
 
 app.use(notFoundMiddleware);

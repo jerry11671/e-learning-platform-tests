@@ -32,10 +32,6 @@ const updateEnrollment = async (req, res) => {
     const { id: studentId, role } = req.user;
     const { status } = req.body;
 
-    if (role !== 'student') {
-        throw new UnauthenticatedError('Not a student.')
-    }
-
     const course = await Course.findOne({ _id: course_id });
 
     if (!course.students.includes(studentId)) {
@@ -53,10 +49,6 @@ const updateEnrollment = async (req, res) => {
 const removeCourse = async (req, res) => {
     const { course_id } = req.params;
     const { id: studentId, role } = req.user;
-
-    if (role !== 'student') {
-        throw new UnauthenticatedError('Not a student.')
-    }
 
     const course = await Course.findOne({ _id: course_id });
     const isExistingStudent = course.students.includes(studentId);

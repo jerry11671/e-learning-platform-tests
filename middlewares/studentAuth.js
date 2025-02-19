@@ -1,9 +1,9 @@
 require('dotenv').config()
-const {UnauthenticatedError} = require('../errors');
+const { UnauthenticatedError } = require('../errors');
 const jwt = require('jsonwebtoken')
 
 
-const auth =  async (req, res, next) => {
+const auth = async (req, res, next) => {
     const authHeaders = req.headers.authorization;
 
     if (!authHeaders || !authHeaders.startsWith('Bearer ')) {
@@ -12,16 +12,20 @@ const auth =  async (req, res, next) => {
 
     const token = authHeaders.split(' ')[1];
 
-    try{
+    try {
         const jwtVerified = jwt.verify(token, process.env.JWT_SECRET)
 
         if (!jwtVerified) {
-            throw new UnuthenticatedError("Authentication invalid")
+            throw new UnauthenticatedError("Authentication invalid")
+        }
+
+        if (jwtVerified.role !== 'student') {
+            return next(new UnauthenticatedError('User is not a student'))
         }
 
         req.user = jwtVerified;
         next();
-    } catch(error) {
+    } catch (error) {
         throw new UnauthenticatedError("Authentication invalid")
     }
 

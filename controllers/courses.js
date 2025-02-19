@@ -84,10 +84,6 @@ const updateStudent = async (req, res) => {
     const { role } = req.user;
     const { status, studentId } = req.body;
 
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
-    }
-
     const course = await Course.findOne({ _id: course_id });
 
     if (!course.students.includes(studentId)) {
@@ -104,10 +100,6 @@ const updateStudent = async (req, res) => {
 const removeStudent = async (req, res) => {
     const { course_id, student_id } = req.params;
     const { role } = req.user;
-
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
-    }
 
     const course = await Course.findOne({ _id: course_id });
 
