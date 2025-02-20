@@ -12,6 +12,10 @@ A Node.js &amp; Express-based API for managing online courses and student enroll
 - Express.js
 - MongoDB & Mongoose
 - JWT Authentication
+- cloudinary
+- multer
+- nodemailer
+- Joi
 
 ## Setup Instructions
 ### Prerequisites
