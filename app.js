@@ -37,13 +37,15 @@ app.use('/api/v1/students', studentAuthMiddleware, studentRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-const start = async () => {
-    await connectDB(process.env.MONGO_URI)
-    app.listen(PORT, () => {
-        console.log(`Server is listening on port ${PORT}`);
-    })
-}
+// const start = async () => {
+//     await connectDB(process.env.MONGO_URI)
+//     app.listen(PORT, () => {
+//         console.log(`Server is listening on port ${PORT}`);
+//     })
+// }
 
 
+// start();
 
-start();
+
+module.exports = app

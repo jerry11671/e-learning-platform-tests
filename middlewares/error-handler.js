@@ -13,10 +13,6 @@ const errorHandlerMiddleware = (err, req, res, next) => {
         customError.code = 404
     }
 
-    // if (err.role && err.name == 'ValidationError') {
-    //     customError.msg = 'role must be either admin, instructor or student'
-    //     customError.statusCode = StatusCodes.UNPROCESSABLE_ENTITY
-    // }
 
     return res.status(customError.statusCode).json({ status: false, msg: customError.msg, code: customError.code });
 }

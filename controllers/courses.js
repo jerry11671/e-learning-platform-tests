@@ -18,14 +18,21 @@ const createCourse = async (req, res) => {
     const { title, duration, description, price } = req.body;
 
     try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            public_id: `${instructorId}_profile`,
-            width: 500,
-            height: 500,
-            crop: 'fill',
-        });
+        if (req.file.path) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                public_id: `${instructorId}_profile`,
+                width: 500,
+                height: 500,
+                crop: 'fill',
+            });
 
-        const course = new Course({ instructor: instructorId, title, duration, description, price, image: result.url });
+            const course = new Course({ instructor: instructorId, title, duration, description, price, image: result.url });
+            await course.save();
+            res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })
+        }
+
+        const course = new Course({ instructor: instructorId, title, duration, description, price, image: "" });
+
 
         await course.save();
         res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })

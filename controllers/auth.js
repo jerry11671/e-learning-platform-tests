@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const User = require('../models/User');
-const { BadRequestError, UnauthenticatedError } = require("../errors");
+const { BadRequestError, UnauthenticatedError, NotFoundError } = require("../errors");
 
 const sendEmail = require('../utils/sendEmail')
 
@@ -41,7 +41,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-        throw new UnauthenticatedError("Invalid email");
+        throw new NotFoundError("User not found");
     }
 
     const isPasswordCorrect = await user.comparePasswords(password);
