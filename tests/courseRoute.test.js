@@ -14,7 +14,7 @@ describe("Course API Endpoints", () => {
         await connectDB();
 
         const hashedPassword = "securedpassword";
-        
+
         // Create test users (Instructor, Admin, Student)
         const instructor = await User.create({
             name: "Instructor",
@@ -119,7 +119,6 @@ describe("Course API Endpoints", () => {
             .send({
                 student: studentId,
             });
-        console.log(response.body);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("msg", "Student enrolled successfully");
@@ -131,7 +130,7 @@ describe("Course API Endpoints", () => {
             .post(`/api/v1/courses/${courseId}/enroll`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
-                studentId: studentId,
+                student: studentId,
             });
 
         expect(response.status).toBe(400);

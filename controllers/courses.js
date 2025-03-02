@@ -89,7 +89,7 @@ const deleteCourse = async (req, res) => {
 
 
 const enrollStudent = async (req, res) => {
-    const { studentId } = req.body;
+    const { student: studentId } = req.body;
     const { course_id } = req.params;
 
     const course = await Course.findOne({ _id: course_id });
