@@ -1,11 +1,9 @@
 const request = require("supertest");
 const app = require("../app");
-const mongoose = require("mongoose");
 const Course = require("../models/Course");
 const Enrollment = require("../models/Enrollment");
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { connectDB, disconnectDB } = require("../utils/test-utils/dbHandler.utils");
 
 describe("Course API Endpoints", () => {
     let instructorToken, adminToken, studentToken;
@@ -13,8 +11,10 @@ describe("Course API Endpoints", () => {
     let courseId;
 
     beforeAll(async () => {
-        await mongoose.connect(process.env.MONGO_URI);
+        await connectDB();
+
         const hashedPassword = "securedpassword";
+        
         // Create test users (Instructor, Admin, Student)
         const instructor = await User.create({
             name: "Instructor",
@@ -42,13 +42,14 @@ describe("Course API Endpoints", () => {
         });
         studentId = student._id;
         studentToken = student.createJWT();
+
     }, 100000);
 
     afterAll(async () => {
         await User.deleteMany({});
         await Course.deleteMany({});
         await Enrollment.deleteMany({});
-        await mongoose.connection.close();
+        await disconnectDB();
     });
 
     test("should create a new course as an instructor", async () => {
@@ -57,7 +58,7 @@ describe("Course API Endpoints", () => {
             .set("Authorization", `Bearer ${instructorToken}`)
             .send({
                 title: "Test Course",
-                duration: "4 weeks",
+                duration: 3,
                 description: "This is a test course.",
                 price: 100,
             });
@@ -74,7 +75,6 @@ describe("Course API Endpoints", () => {
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("msg", "All courses retrieved");
-        // expect(response.body.data.length).toBeGreaterThan(0);
     });
 
     test("should update a course as an instructor", async () => {
@@ -101,14 +101,15 @@ describe("Course API Endpoints", () => {
     test("should enroll a student as an admin", async () => {
         // First, create a course again for enrollment testing
         const courseResponse = await request(app)
-            .post("/api/v1/courses")
+            .post("/api/v1/courses/")
             .set("Authorization", `Bearer ${instructorToken}`)
             .send({
                 title: "Enrollment Test Course",
-                duration: "4 weeks",
+                duration: 3,
                 description: "This course is for testing enrollment.",
                 price: 50,
             });
+
 
         courseId = courseResponse.body.data.course._id; // Store new course ID
 
@@ -116,8 +117,9 @@ describe("Course API Endpoints", () => {
             .post(`/api/v1/courses/${courseId}/enroll`)
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
-                studentId: studentId,
+                student: studentId,
             });
+        console.log(response.body);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("msg", "Student enrolled successfully");
@@ -168,6 +170,6 @@ describe("Course API Endpoints", () => {
             });
 
         expect(response.status).toBe(401);
-        expect(response.body).toHaveProperty("msg", "Not an admin.");
+        expect(response.body).toHaveProperty("msg", "User is not an admin");
     });
 });

@@ -14,7 +14,7 @@ const enrollmentSchema = Joi.object({
             return helpers.error("any.invalid");
         }
         return value;
-    }, "MongoDB ObjectId").required(),
+    }, "MongoDB ObjectId"),
 
     status: Joi.string().valid("active", "completed", "dropped").default("active"),
 });

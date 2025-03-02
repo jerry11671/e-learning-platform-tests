@@ -34,7 +34,7 @@ router.get('/', getCourses);
 router.post('/', instructorAuth, uploads.single('courseImage'), validate(courseSchema), createCourse);
 router.put('/:id', instructorAuth, validate(updateCourseSchema), updateCourse);
 router.delete('/:id', instructorAuth, deleteCourse);
-router.post('/:course_id/enroll', adminAuth, validate(enrollmentSchema), validate(courseSchema), enrollStudent);
+router.post('/:course_id/enroll', adminAuth, validate(enrollmentSchema), enrollStudent);
 router.put('/:course_id/update', adminAuth, validate(updateStudentSchema), updateStudent);
 router.delete('/:course_id/students/:student_id', adminAuth, removeStudent);
 

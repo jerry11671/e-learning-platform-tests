@@ -13,12 +13,35 @@ const getCourses = async (req, res) => {
     return res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'All courses retrieved', data: courses })
 }
 
+// This analytics gets the number of students enrolled in a course
+const getCourseAnalytics = async (req, res) => {
+    const analytics = await Course.aggregate([
+        {
+            $project: {
+                title: 1,
+                studentCount: { $size: "$students" }
+            }
+        },
+        {
+            $sort: { studentCount: -1 } 
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json({
+        status: true,
+        code: 200,
+        msg: "Course enrollment analytics retrieved successfully.",
+        data: analytics
+    });
+};
+
+
 const createCourse = async (req, res) => {
     const { id: instructorId, role } = req.user;
     const { title, duration, description, price } = req.body;
 
     try {
-        if (req.file.path) {
+        if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path, {
                 public_id: `${instructorId}_profile`,
                 width: 500,
@@ -31,8 +54,7 @@ const createCourse = async (req, res) => {
             res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })
         }
 
-        const course = new Course({ instructor: instructorId, title, duration, description, price, image: "" });
-
+        const course = new Course({ instructor: instructorId, title, duration, description, price, image: "" })
 
         await course.save();
         res.status(StatusCodes.OK).json({ status: true, code: 200, msg: 'Course added successfully', data: { course } })
@@ -69,11 +91,6 @@ const deleteCourse = async (req, res) => {
 const enrollStudent = async (req, res) => {
     const { studentId } = req.body;
     const { course_id } = req.params;
-    const { role } = req.user;
-
-    if (role !== 'admin') {
-        throw new UnauthenticatedError('Not an admin.')
-    }
 
     const course = await Course.findOne({ _id: course_id });
     const isExistingStudent = course.students.includes(studentId); // A check to determine if a student is already enrolled to a course.
@@ -133,4 +150,4 @@ const removeStudent = async (req, res) => {
 
 
 
-module.exports = { getCourses, createCourse, updateCourse, deleteCourse, enrollStudent, updateStudent, removeStudent } 
+module.exports = { getCourses, createCourse, getCourseAnalytics, updateCourse, deleteCourse, enrollStudent, updateStudent, removeStudent } 

@@ -1,25 +1,27 @@
 require('dotenv').config()
+const { connectDB, disconnectDB } = require("../utils/test-utils/dbHandler.utils")
 const request = require("supertest");
-const mongoose = require("mongoose");
 const User = require("../models/User");
+const mongoose = require("mongoose")
+
 
 const app = require("../app");
 
 
 describe("POST /api/v1/auth/register", () => {
     beforeAll(async () => {
-        // Connect to a database
-        await mongoose.connect(process.env.MONGO_URI);
+        // Connect to the test
+        connectDB();
     });
 
     afterEach(async () => {
         // Clean up database after each test    
         await User.deleteMany({});
-    }, 100000);
+    }, 10000);
 
     afterAll(async () => {
         // Close database connection after all tests
-        await mongoose.connection.close();
+        disconnectDB();
     });
 
     test("should register a new user with valid data", async () => {
@@ -81,7 +83,7 @@ describe("POST /api/v1/auth/register", () => {
 
 describe("POST /api/v1/auth/login", () => {
     beforeAll(async () => {
-        await mongoose.connect(process.env.MONGO_URI);
+        await connectDB();
 
         // Create a test user
         await User.create({
@@ -94,7 +96,7 @@ describe("POST /api/v1/auth/login", () => {
 
     afterAll(async () => {
         await User.deleteMany({});
-        await mongoose.connection.close();
+        await disconnectDB();
     });
 
     test("should login successfully with valid credentials", async () => {

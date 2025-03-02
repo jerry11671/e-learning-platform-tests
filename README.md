@@ -148,6 +148,11 @@ The API follows structured error handling, returning responses in the format:
   "code": "Error code here"
 }
 ```
+## Test Link
+npm test authRoute.test.js
+npm test courseRoute.test.js
+npm test studentRoute.test.js
+
 ## Postman Published Link
 https://documenter.getpostman.com/view/33130441/2sAYXCmeig
 

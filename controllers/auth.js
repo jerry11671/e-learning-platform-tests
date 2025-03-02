@@ -57,7 +57,22 @@ const login = async (req, res) => {
     });
 }
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    let code = Math.floor((Math.random() * 10000));
+    const user = await User.findOne({ email: email })
+
+    if (!user) {
+        throw new NotFoundError("User with this email does not exist");
+    }
+
+    const otp = new Otp({ user: user._id, code: code });
+    sendEmail(email, 'Password Reset Otp', `Use this code to reset your password\n${code}`);
+    await otp.save();
+    return res.status(StatusCodes.OK).json({ status: true, code: 200, msg: "Check your email for otp code" });
+}
 
 
 
-module.exports = { register, login };
+
+module.exports = { register, login, forgotPassword };
